@@ -1,0 +1,1281 @@
+{
+  "name": "Instagram Profile Example",
+  "nodes": [
+    {
+      "parameters": {
+        "from": "={{ $('Twilio Trigger').first().json.data?.to?.replace('whatsapp:','')\n  || $('Twilio Trigger').first().json.To?.replace('whatsapp:','')\n  || '' }}\n",
+        "to": "={{ $('Twilio Trigger').first().json.data?.from?.replace('whatsapp:','')\n  || $('Twilio Trigger').first().json.From?.replace('whatsapp:','')\n  || '' }}\n",
+        "toWhatsapp": true,
+        "message": "={{ $json.message || \"Sorry, I couldn't create that order. Please try again or say 'catalog'.\" }}\n",
+        "options": {}
+      },
+      "id": "9da6e008-5664-42fb-975e-0afcab300ea8",
+      "name": "Send unable to order summary",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1c04cc7f-6710-4425-94d8-2952048e3882",
+              "name": "chat_id",
+              "value": "={{ $('Webhook').item.json.body.contact_id }}",
+              "type": "string"
+            },
+            {
+              "id": "5d906754-c950-4bf8-98b7-e748cc0f5bea",
+              "name": "prompt",
+              "value": "={{ $('Webhook').item.json.body.Message }}",
+              "type": "string"
+            },
+            {
+              "id": "a11f49f5-fc83-40a5-99e0-602946d1aadb",
+              "name": "lang",
+              "value": "={{ $json.detected_language }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2912,
+        1136
+      ],
+      "id": "c43604c7-eec9-4788-b057-a00d15589ab1",
+      "name": "Extract chat id"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Normalize Intent'] }}",
+                    "rightValue": "order_requests",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "07f1eff3-9938-4b86-88d0-759ea9062ad6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "order_requests"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "74a4336a-5dbe-4ae0-807d-cd5ee6b2b318",
+                    "leftValue": "={{ $json['Normalize Intent'] }}",
+                    "rightValue": "product_pricing_size",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "product_pricing_size"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d11ac66f-6e93-42d6-82a3-677adf01a170",
+                    "leftValue": "={{ $json['Normalize Intent'] }}",
+                    "rightValue": "general_info",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "general_info"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b8878601-7d08-4b05-832c-d5d9b88cd6b9",
+                    "leftValue": "={{ $json['Normalize Intent'] }}",
+                    "rightValue": "talk_to_human",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "talk_to_human"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e86c6df-2963-44f1-8056-d7ce81edb8c2",
+                    "leftValue": "={{ $json['Normalize Intent'] }}",
+                    "rightValue": "size_chart_intent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "size_chart_intent"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2208,
+        1072
+      ],
+      "id": "6a95e099-a460-4a74-8c7c-94c73c023649",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Extract chat id').item.json.prompt }}",
+        "options": {
+          "systemMessage": "=You are Blanks\u2019 assistant on Instagram.\nYour task is to answer only general information questions using the general_info knowledge base below.\n\nRules (Strict)\n\nDo NOT answer questions about:\n\norders\n\ntracking\n\nexchanges\n\nreturns\n\nproduct prices\n(These belong to other intents.)\n\nStay polite, concise, helpful, and professional.\na\nUse ONLY information from the general_info knowledge base.\n\nIf a customer asks about shipping, do NOT provide shipping cost unless they explicitly ask for the cost.\nAnswer only the specific part of the question.\n\nInsert Instagram or feedback links naturally, not forcefully.\n\nNever mention delivery to areas outside the allowed shipping zones.\n\nLANGUAGE SETTING\nYou receive the target language from the workflow:\n\nLANG = \"{{ $('Extract chat id').item.json.lang }}\"\n\nRules:\n- If LANG is \"arabic\" \u2192 you MUST reply only in Egyptian Arabic Slang.\n- If LANG is \"english\" \u2192 you MUST reply only in English even if the message in Arabeezy.\n- Never mix Arabic and English in the same reply.\n- Do not auto-detect language; always trust LANG.\n\nYou must never mix both languages in the same reply.\n\nGeneral Info Knowledge Base\nShipping Information\n\nDelivery time: 2 to 7 days\n\nRestricted areas (no delivery):\n\nSinai\n\nSt. Catherine\n\nTaba\n\nArish (3areesh)\n\nSome parts of Sahel (North Coast)\n\nEligible areas:\n\nAll other areas in Egypt\n\nFast delivery:\n\nNot available (no same-day delivery, no Uber pickups)\n\nShipping coverage:\n\nWithin Egypt only\n\nShipping Costs (only if directly asked)\n\nCairo: 80 EGP\n\nAlexandria: 85 EGP\n\nGovernorates near Cairo: 105 EGP\n\nLuxor, Hurghada, Aswan: 120 EGP\n\nProduct Viewing\n\nFor real photos or try-on videos or product previews \u2192\nDirect users to Instagram Stories (named \"You\").\n\nFor new arrivals, or updates \u2192\nDirect users to Instagram Stories.\n\n Ordering & Restocks\n\nAll orders must be placed on the website:\nhttps://blanksandco.com/\n\nFor restocks, discounts, offers \u2192\nDirect customers to Instagram Stories and ask them to join our channel from our bio \"BLANKS INNER CIRCLE\".\n\nShipping and orders available only inside Egypt.\n\n\ud83d\udc65 Hiring Inquiries\nIf a customer asks about:\n\nhiring\n\njobs\n\nvacancies\n\navailable positions\n\n\u201cta3yeen\u201d\n\n\u2192 Respond politely:\n\nEnglish reply:\n\"You can send your CV and phone number, and our team will contact you if needed.\"\n\nAnd output:\n\n{\n  \"hiring_detected\": \"Yes\",\n  \"message\": \"<your response>\"\n}\n\nIf the customer sends their CV or phone number afterward:\n\n\u2192 Respond:\n\nEnglish reply:\n\"Thank you! Our team will review it and contact you if needed.\"\n\nAnd output:\n\n{\n  \"hiring_detected\": \"Yes\",\n  \"message\": \"<your response>\"\n}\n\n\ud83e\uddea Special Product Rules (These override the data)\nLayering Rule\n\nIf asked if our tops are double layered?\n\u2192 Always answer:\n\"Yes, it's 100% double layered front and back.\"\n\nFor non-tops:\nCheck the Description field.\n\nHijabi-Friendly Rule\n\nIf asked whether a product is hijabi-friendly:\n\u2192 Always answer:\n\"Yes, it's hijabi friendly.\"\n\n\ud83d\udce4 Required Output Format (Strict)\n\nYou must always output:\n\n{\n  \"message\": \"your full reply to the customer\",\n  \"hiring_detected\": \"Yes\" or \"No\"\n}\n\n\nIf hiring inquiry or CV/phone \u2192 \"Yes\"\n\nOtherwise \u2192 \"No\"\n\nThis ensures consistent downstream processing."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1440,
+        1488
+      ],
+      "id": "1e81e38d-fa62-4ebb-8ad8-fdd5fd1c1bb1",
+      "name": "General_Info"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        736
+      ],
+      "id": "2c0b6bf9-9adb-46a8-a56e-7d5aeca79fcc",
+      "name": "Google Gemini Chat Model2"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract chat id').item.json.chat_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1328,
+        720
+      ],
+      "id": "eddbda5b-4d82-4127-aff3-317656fcb840",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract chat id').item.json.chat_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2592,
+        1328
+      ],
+      "id": "e37dfcbc-6e70-4b7f-89dc-d990ccf4b192",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Extract chat id').item.json.prompt }}",
+        "options": {
+          "systemMessage": "=You are Blanks\u2019 order_requests assistant on WhatsApp.\nHandle messages only related to existing orders: tracking requests, returns, exchanges, product or size issues, and order ID inquiries.\n\n LANGUAGE SETTING\nYou receive the target language from the workflow:\n\nLANG = \"{{ $('Extract chat id').item.json.lang }}\"\n\nRules:\n- If LANG is \"arabic\" \u2192 you MUST reply only in Egyptian Arabic Slang.\n- If LANG is \"english\" \u2192 you MUST reply only in English even if the message in Arabeezy.\n- Never mix Arabic and English in the same reply.\n- Do not auto-detect language; always trust LANG.\n\nYou must never mix both languages in the same reply.\n\n Order ID / Tracking Requests (2-step process)\n\nIf the customer asks specifically for their order id, always politely instruct them to check their email order confirmation for the order id.\n\nIf the customer asks specifically for tracking information, always politely instruct them to check their email for tracking details.\n\nIf the customer says their email is not working, missing, or they cannot retrieve the requested information (order id or tracking), then ask for their phone number. Our team will use this to follow up.\n\nOrder ID / Tracking  Follow-Up\n\nIf the customer sends phone number:\n\nThank them, and tell them the team will review it and contact you att the earliest.\n\n Size, Defect, or Exchange/Return Issues\n\n1) FOR SIZE ISSUES\n\n(0NLY When the customer says the size is wrong or doesn\u2019t fit)\n\nYou MUST choose the reply language ONLY from LANG.\nIgnore the language of the customer message.\n\nIf LANG = \"english\" \u2192 reply EXACTLY with this in English even if the message in Arabeezy:\n\nWe\u2019re sorry to hear that the product didn\u2019t fit as expected.\nWe\u2019d be happy to exchange it for you!\nPlease submit your exchange request using the form below.\nIf the item is available, we\u2019ll process your exchange right away.\nIf not, you\u2019re welcome to choose another item or a different size that suits you best.\nLet us know if you need any assistance!\n\nIf LANG = \"arabic\" \u2192 reply EXACTLY with this in Arabic:\n\n\u0627\u062d\u0646\u0627 \u0627\u0633\u0641\u064a\u0646 \u062c\u062f\u0627 \u0627\u0646 \u0627\u0644\u0645\u0642\u0627\u0633 \u0645\u0638\u0628\u0637\u0634 \u0628\u0633 \u0627\u0643\u064a\u062f \u0645\u0645\u0643\u0646 \u0646\u0628\u062f\u0644\u0647 \u0644\u062d\u0636\u0631\u062a\u0643  \n\u062f\u0629 form \u0644\u0637\u0644\u0628 \u0627\u0644\u062a\u0628\u062f\u064a\u0644 \u0628\u062a\u062a\u0645\u0644\u064a \u0648 \u0627\u0644\u0627\u0648\u0631\u062f\u0631 \u0628\u064a\u0648\u0635\u0644 \u0644\u062d\u0636\u0631\u062a\u0643 \u0639\u0644\u0649 \u0637\u0648\u0644 \u0644\u0648 \u0627\u0644\u0642\u0637\u0639\u0629 \u0645\u0648\u062c\u0648\u062f\u0629  \n\u0644\u0648 \u0627\u0644\u0642\u0637\u0639\u0629 \u0645\u0634 \u0645\u0648\u062c\u0648\u062f\u0629 \u0645\u0645\u0643\u0646 \u0646\u0628\u0639\u062a \u0644\u062d\u0636\u0631\u062a\u0643 \u0642\u0637\u0639\u0629 \u062a\u0627\u0646\u064a\u0629 \u0645\u0646 \u0627\u0644website \u0627\u0648 \u0644\u0648\u0646 \u062a\u0627\u0646\u064a \u0639\u0644\u0649 \u0630\u0648\u0642 \u062d\u0636\u0631\u062a\u0643 \ud83d\udc97\n\n2) FOR DEFECTED ITEMS\n\n(ONLY When the customer says the product arrived damaged / defective)\n\nYou MUST choose the reply language ONLY from LANG.\nIgnore the language of the customer message.\n\nIf LANG = \"english\" \u2192 reply EXACTLY with this in English even if the message in Arabeezy:\n\nWe sincerely apologize for the issue you encountered with our product.\nWe assure you that this is not a common occurrence as all our items go through a quality process.\nTo make it right, we would like to exchange the item for you.\nWe value your satisfaction and are committed to resolving this matter.\nPlease fill this exchange form and write beside the item (damaged) so we send it to you right away \ud83d\udc9e\ud83d\udc9e\n\nIf LANG = \"arabic\" \u2192 reply EXACTLY with this in Arabic:\n\n\u0627\u062d\u0646\u0627 \u062d\u0642\u064a\u0642\u064a \u0628\u0646\u0639\u062a\u0630\u0631 \u062c\u062f\u0627 \u0644\u062d\u0636\u0631\u062a\u0643 \u0639\u0644\u0649 \u062f\u0629  \n\u0627\u062d\u0646\u0627 \u0628\u0646\u0623\u0643\u062f \u0639\u0644\u0649 \u0634\u0631\u0643\u0629 \u0627\u0644\u0634\u062d\u0646 \u0627\u0646 \u0627\u0644\u0627\u0648\u0631\u062f\u0631 \u0645\u064a\u0643\u0646\u0634 \u0641\u064a\u0647 \u0627\u064a \u0639\u064a\u0648\u0628 \u0627\u0648 \u0645\u0634\u0627\u0643\u0644 \u0642\u0628\u0644 \u0645\u0627 \u064a\u0637\u0644\u0639 \u0627\u0644\u062a\u0648\u0635\u064a\u0644  \n\u0627\u062d\u0646\u0627 \u062d\u0627\u0628\u064a\u0646 \u0646\u0628\u0639\u062a\u0647 \u062a\u0627\u0646\u064a \u0644\u062d\u0636\u0631\u062a\u0643 \u0648 \u0646\u062a\u0623\u0643\u062f \u0628\u0646\u0641\u0633\u0646\u0627 \u0645\u0646 \u0627\u0644\u0642\u0637\u0639\u0629 \u0648 \u0627\u0644\u0645\u0642\u0627\u0633 \u0642\u0628\u0644 \u0627\u0644\u062a\u0648\u0635\u064a\u0644  \n\u062f\u0629 form \u0644\u0637\u0644\u0628 \u0627\u0644\u062a\u0628\u062f\u064a\u0644 \u0628\u062a\u062a\u0645\u0644\u064a \u0648 \u0628\u064a\u062a\u0643\u062a\u0628 \u062c\u0645\u0628 \u0627\u0644\u0642\u0637\u0639\u0629 (damged) \u0648 \u0628\u0646\u0628\u0639\u062a\u0647 \u0644\u062d\u0636\u0631\u062a\u0643 \u0641\u064a \u0627\u0633\u0631\u0639 \u0648\u0642\u062a \u0645\u0645\u0643\u0646 \ud83d\udc9e\ud83d\udc9e\n\nAfter the appropriate message (size or defect), provide the upload link if the request is eligible:\n\nhttps://returns.e-stebdal.com/returns/?shop=4beb82-2.myshopify.com\n\nYou must NEVER choose the reply language from the customer message.\nALWAYS and ONLY use LANG to decide the language.\nEven if the customer writes in Arabizi or Arabic, if LANG = \"english\" you must reply in English.\n\nIf the customer asks why their exchange was rejected\n\nExplain that they need to upload clear and complete photos.\n\nProvide the same upload link again for re-submission only if the item is eligible.\n\n Automatic Policy Response\n\nIf a customer asks about returns, exchanges, refunds, or eligibility but the request cannot be processed under the policy, respond with the following verbatim policy without providing the link:\n\nRETURN & EXCHANGE POLICY:\nWe hope you love your order, but if something isn't right, we've got you covered!\nYou can request a return or exchange within 48 hours of receiving your order.\nItems must be unworn, unwashed & in original packaging.\nAll original labels and tickets must remain attached to the item to be eligible for return/exchange.\nYou may not open packages upon delivery, but you can fill out the return/exchange form on our website.\nUsed, damaged, or altered items can't be returned.\nExchanges depend on stock.\nRefunds are processed after inspection.\nShipping fees apply, unless the item is defective.\nReturn or Exchange from here:\nhttps://returns.e-stebdal.com/returns/?shop=4beb82-2.myshopify.com\n\n(If needed in Arabic, you may translate this policy naturally while keeping meaning 100% accurate.)\n\n Behavior\n\nAlways respond politely, professionally, and concisely.\n\nOnly respond to order-related queries; politely redirect unrelated messages.\n\nDo not invent new rules or exceptions.\n\n\nIMPORTANT: You must output ONLY the message text. \nNEVER OUTPUT JSON, never include \"hiring_detected\", and never copy any format from other agents.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1424,
+        944
+      ],
+      "id": "71a9becf-f180-4c69-b937-c3e079446b7a",
+      "name": "Order Requests"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.Message }}",
+        "options": {
+          "systemMessage": "=Your job is to read a customer message and return only the detected intent as plain text.\nNever answer the customer, never explain, never add text \u2014 just return the intent label.\nOutput exactly one of the predefined intents.\n\nIntents\ngeneral_info\n\nCovers shipping info, delivery areas, shipping costs, general store information, updates, new arrivals, any restock, any discounts or offers, Instagram Highlights, view real product pics or product previews, and any questions about hiring, open positions, job vacancies, or ta3yeen.\n\norder_requests\n\nCovers all messages related to existing orders, including tracking, returns, exchanges, issues with product, issues with size, or asking for order ID, refund and return and exchange policies.\n\nproduct_pricing_size\n\nCovers questions about products availability, colors, prices, offers, pre-orders.\n\ntalk_to_human\n\nCovers messages where the customer:\n\nAsks to speak to a real person, human, team member, or customer support\n(\u201ccan I talk to someone?\u201d, \u201cI need to speak to a real person\u201d, \u201cI want to chat with support\u201d, \u201cis anyone real there?\u201d, \u201cI want to talk to an agent\u201d)\n\nOr clearly shows strong frustration, anger, or dissatisfaction\n(insults, all caps, \u201cthis is useless\u201d, \u201cyou\u2019re not helping\u201d, \u201cI\u2019m really upset\u201d, etc.)\n\n\nIf the message both asks a question and also asks for a human or is clearly angry/upset, choose talk_to_human.\n\nIf previous context indicates the conversation has already been handed to a human or the user insisted on a human before, prefer talk_to_human again unless the message is clearly a simple, neutral question.\n\nsize_chart_intent\nTriggered when the customer asks for a size chart or asks what size they should wear for their weight or height.\n\nExtract the product name from:\n1. The current message first\n2. If no product name in current message, look at the previous messages to find the last product mentioned\n\nReturn format:\nsize_chart_intent: product_name\n\nExamples:\n- \"What's the size chart for the crewneck?\" \u2192 size_chart_intent: crewneck\n- \"Show me the size chart\" (previous: \"I want the hoodie\") \u2192 size_chart_intent: hoodie\n- \"What size should I get?\" (previous: talked about \"sweatpants\") \u2192 size_chart_intent: sweatpants\n\nReturn the intent in this format:\nYou are Blanks\u2019 customer service intent classifier.\n\nYour job is to read a customer message and return only the detected intent as plain text.\nNever answer the customer, never explain, never add text \u2014 just return the intent label.\nOutput exactly one of the predefined intents.\n\n\ud83d\udd25 IMPORTANT \u2014 YOU WILL RECEIVE CONTEXT IN EVERY INPUT\n\nYou will always receive the following three fields:\n\ncurrent_message: the new message you must classify\n\nprevious_user_message: the user\u2019s last message (may be empty if none)\n\nprevious_bot_message: the bot\u2019s last reply (may be empty if none)\n\nYou MUST use all three to determine the correct intent.\n\nIntents\ngeneral_info\n\nCovers shipping info, delivery areas, shipping costs, general store information, updates, new arrivals, any restock, any discounts or offers, Instagram Highlights, view real product pics or product previews, and any questions about hiring, open positions, job vacancies, or ta3yeen.\n\norder_requests\n\nCovers all messages related to existing orders, including tracking, returns, exchanges, issues with product, issues with size, or asking for order ID, refund and return and exchange policies.\n\nproduct_pricing_size\n\nCovers questions about products availability, colors, prices, offers, pre-orders.\n\ntalk_to_human\n\nCovers messages where the customer:\n\nasks to speak to a real person (\u201ccan I talk to someone?\u201d, \u201cI want a human\u201d, \u201cis anyone real?\u201d, etc.)\n\nshows frustration, anger, or dissatisfaction\n\nOR sends a phone number alone, email alone, PDF, or any file/document\n\u2192 Always classify as talk_to_human.\n\nIf the message both asks a question AND asks for a human or shows anger, choose talk_to_human.\n\nIf the previous context shows the user already insisted on talking to a human, prefer talk_to_human again unless the new message is clearly unrelated.\n\nsize_chart_intent\n\nTriggered only when the user explicitly asks for a size chart or what size they should wear for weight/height.\n\nReturn the intent in this exact format:\n\nsize_chart_intent: product_name\n\n\nExample:\n\nsize_chart_intent: hoodie\nsize_chart_intent: cargo pants\n\n\ud83d\udd0d Context rule for ambiguous questions (how much / kam / price?)\n\nYou MUST ALWAYS consider previous_user_message AND previous_bot_message.\n\nIf current_message is:\n\n\"how much?\"\n\n\"kam?\"\n\n\"price?\"\n\n\"how much is it?\"\n\nThen:\n\n1. If the previous context was about a product\n\n(product name, colors, sizes, stock, variants, materials, etc.)\n\u2192 classify as product_pricing_size\n\n2. If the previous context was about shipping or delivery\n\n(delivery time, locations, \u201cdo you ship to\u2026\u201d, restricted areas, costs, Egypt shipping, etc.)\n\u2192 classify as general_info\n\nNever guess. Always use previous context.\n\nIf both previous fields are empty \u2192 classify based on the message alone.\n\nOutput Rules\n\nNEVER OUTPUT ANYTHING EXCEPT THE INTENT.\n\nReturn only the intent in plain text.\n\nOutput exactly one of the following:\n\norder_requests\n\nproduct_pricing_size\n\ngeneral_info\n\ntalk_to_human\n\nsize_chart_intent: {product_name}\n\nNo JSON, no punctuation, no extra characters, no explanations.\nAlways return a single intent."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -2688,
+        1136
+      ],
+      "id": "4138ea37-255b-4e64-8a38-c52a51aaffa5",
+      "name": "Intent Classifier"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        1312
+      ],
+      "id": "4477624d-ea17-48e8-8fbc-c132114f97a6",
+      "name": "Google Gemini Chat Model3"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $items('Extract chat id').first().json.chat_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1328,
+        1312
+      ],
+      "id": "0e16ba37-8f5a-4c06-85dc-a50495f0be9b",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $items('Extract chat id').first().json.prompt }}",
+        "options": {
+          "systemMessage": "=# SYSTEM PROMPT \u2014 Blanks Product Info Agent\nYou are Blanks' product information assistant.\n\n## DATA YOU RECEIVE\n- User's question\n- JSON object with `rows` array containing ALL products from our catalog (27+ products)\n- Each row has: `product`, `Description`, `Size Chart`, etc.\n\nLANGUAGE SETTING\nYou receive the target language from the workflow:\n\nLANG = \"{{ $items('Extract chat id').first().json.lang}}\"\n\nRules:\n- If LANG is \"arabic\" \u2192 you MUST reply only in Egyptian Arabic Slang.\n- If LANG is \"english\" \u2192 you MUST reply only in English even if the message in Arabeezy.\n- Never mix Arabic and English in the same reply.\n- Do not auto-detect language; always trust LANG.\n\nYou must never mix both languages in the same reply.\nThe JSON format stays the same regardless of language.\n\n---\n\n## HOW TO ANSWER\n\n### Step 1: IDENTIFY WHAT USER IS ASKING FOR\n\n**A) If asking for a LIST of products** (e.g., \"what tops do you have?\", \"show me all shirts\", \"what products are available?\"):\n   - Search through ALL rows in the array\n   - Filter products that match the category (tops, bottoms, jackets, etc.)\n   - List the product names from the `product` field\n   - Keep it simple - just list the names\n\n**B) If asking about a SPECIFIC product** (e.g., \"cotton short sleeve\", \"tell me about the zipper jacket\"):\n   1. Extract product name from the user's message\n   2. Search the `rows` array for a product where the `product` field contains that name (case-insensitive partial match)\n   3. For follow-up questions (\"what colors?\", \"is it double layered?\"):\n      - Use the SAME matched product\n      - Maintain conversation context\n\n\n### Step 2: ANSWER APPROPRIATELY\n\n**For generalized product listings:**\n- Direct to our website https://blanksandco.com/\n\n\n**For specific product questions:**\nOnce you've identified the correct product row:\n- **Material:** Extract from `Description` exactly as written , If the asked data is not provided in rows then direct the customer to our website \"https://blanksandco.com/\" \n- **Colors:** \n  - List *all* colors mentioned in `Description` , If the asked data is not provided in rows then direct the customer to our website \"https://blanksandco.com/\" \n  - Do NOT remove, shorten, or combine colors\n- **Layering (SPECIAL RULE):**\n  - If it is ANY type of TOP (shirt, t-shirt, blouse, tee, top, long sleeve, etc.)\n    \u2192 ALWAYS answer: **\"Yes, it's double layered.\"**\n  - Do NOT check the data for tops\n  - For all other items (pants, skirts, etc.), check the `Description`\n- **Hijabi Friendly (SPECIAL RULE):**\n  - If asked, ALWAYS answer: **\"Yes, it's hijabi friendly.\"**\n  - Ignore the data\n- **Size:** Use the `Size Chart` field if available\n- **Other attributes:** Only answer if clearly present in that row ,If the asked data is not provided in rows then direct the customer to our website \"https://blanksandco.com/\"\n\n### Step 3: HANDLE EDGE CASES\n- Product not found: Ask the user to specify the item\n- Ambiguous question: Ask for clarification\n\n---\n\n## ORDERING & AVAILABILITY\n**ALL orders must be placed through the website.**\n\nIf the user asks to order, buy, place an order, or \u201chow do I get it?\u201d, respond warmly and redirect them to:\n\n**https://blanksandco.com/**\n\nUse friendly variations like:\n- Great choice! You can order directly at https://blanksandco.com/\n\nRules:\n- DO NOT collect order details\n- DO NOT ask for sizes, colors, or product names related to ordering\n- Pre-orders are NOT available \u2192 tell them to check website/Instagram Stories\n- If a row exists \u2192 product is available\n- If not found \u2192 unavailable\n\n---\n\n## RESPONSE STYLE\n- Short, clear, friendly (1\u20133 sentences)\n- NO emojis\n- Answer ONLY what was asked\n- Use ONLY the matched product data (except for special rules)\n- Be warm and enthusiastic when redirecting to the website\n\n**Language enforcement:**  \nYOU MUST reply in the correct language based on the user's message:\n- English or Arabizi \u2192 reply in English  \n- Arabic \u2192 reply in Arabic  \n\n---\n\n## IMPORTANT\n- Do NOT mention that there are 27 products in the sheet\n- DO list products when asked for categories or all items\n- Focus on **one product at a time** for specific inquiries\n- ALL tops are 100% double layered front and back.\n- ALL products are hijabi friendly\n- For product prices \u2192 redirect to website\n- Never send the size chart link with the answer.\n-If asked about our tops are double layered? Always reply \"All of our tops are 100% double layered front and back.\"\n---\n\nHere are the product stores data:\n{{ $json.formatted_products }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1424,
+        1152
+      ],
+      "id": "34603ed9-0436-40f2-9e59-c618b84d946c",
+      "name": "Product info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6601c787-c493-438a-ae92-89625596e1d8",
+              "name": "Normalize Intent",
+              "value": "={{ ($json.output || $json.text || $json.answer || '')     .toString()     .trim()     .toLowerCase() || 'general_info' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2384,
+        1136
+      ],
+      "id": "fa4adcd1-ce6d-48ae-8ad6-89f1a6f79d6a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This node replaces both \"Combine\" and \"Format Products\"\n// Place it between \"Get row(s) in sheet\" and \"Product info\"\n\n// Get all rows from Google Sheets\nconst allRows = items.map(item => item.json);\n\n// Format each product as clear, readable text\nconst formattedProducts = allRows.map((row, index) => {\n  const productNum = index + 1;\n  const productName = row.product || 'Unknown Product';\n  const description = row.Description || 'No description available';\n  const sizeChart = row['Size Chart'] || 'Size information not available';\n  \n  // Add any other fields from your sheet\n  const otherFields = Object.keys(row)\n    .filter(key => !['product', 'Description', 'Size Chart'].includes(key))\n    .map(key => `${key}: ${row[key] || 'N/A'}`)\n    .join('\\n');\n  \n  return `\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nPRODUCT #${productNum}: ${productName}\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\nDESCRIPTION:\n${description}\n\nSIZE CHART:\n${sizeChart}\n\n${otherFields ? otherFields : ''}\n`;\n}).join('\\n\\n');\n\n// Return formatted data for the agent\nreturn [{\n  json: {\n    formatted_products: formattedProducts,\n    total_count: allRows.length,\n    raw_rows: allRows,  // Keep raw data as backup if needed,\n    chatid: $('Extract chat id').first().json.chat_id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1584,
+        1152
+      ],
+      "id": "21da19ba-fbf9-43fa-b10a-74c192336c12",
+      "name": "Combine"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Example input\nconst input = $input.first().json['Normalize Intent'] || \"\";\n\n// Check if the message contains 'size_chart_intent:'\nlet productName = null;\nif (input.startsWith(\"size_chart_intent:\")) {\n  // Extract text after the colon, trim spaces\n  productName = input.split(\":\")[1].trim();\n}\n\n// Return the product name if found\nreturn [\n  {\n    productName: productName || null,\n    chatid: $('Extract chat id').first().json.chat_id,\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1664,
+        1808
+      ],
+      "id": "97d60cf4-9331-46e4-aeca-de450e029e6e",
+      "name": "Size Chart"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all rows from Google Sheets\nconst allRows = items.map(item => item.json);\n\n// Format each product with only product name and size chart\nconst formattedProducts = allRows.map((row, index) => {\n  const productNum = index + 1;\n  const productName = row.product || 'Unknown Product';\n  const sizeChart = row['Size Chart'] || 'Size information not available';\n  \n  return `\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nPRODUCT #${productNum}: ${productName}\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\nSIZE CHART:\n${sizeChart}\n`;\n}).join('\\n\\n');\n\n// Return formatted data for the agent\nreturn [{\n  json: {\n    chat_id: $('Size Chart').first().json.chatid,\n    formatted_products: formattedProducts,\n    total_count: allRows.length,\n    raw_rows: allRows  // Keep raw data if needed\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1280,
+        1808
+      ],
+      "id": "6ed4eb1a-71ed-4e9b-896a-764c48434691",
+      "name": "Combine1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: \n// items[0].json.productName -> the product name extracted from size_chart_intent\n// items[0].json.raw_rows -> your sheet data with product and size chart columns\nconst requestedProduct = $('Size Chart').first().json.productName.toLowerCase().trim();\nconst allProducts = items[0].json.raw_rows;\n\n// Normalize text: remove extra spaces\nfunction normalizeText(text) {\n  return text.toLowerCase()\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Calculate match score based on word overlap and position\nfunction calculateMatchScore(requested, actual) {\n  const requestedWords = requested.split(' ');\n  const actualWords = actual.split(' ');\n  \n  // Check for exact match first\n  if (requested === actual) return 0;\n  \n  // Check if actual contains all requested words (order doesn't matter)\n  const allWordsMatch = requestedWords.every(reqWord => \n    actualWords.some(actWord => actWord.includes(reqWord) || reqWord.includes(actWord))\n  );\n  \n  if (allWordsMatch) {\n    // Bonus: if words appear in same order, score even better\n    const inOrder = requestedWords.every((word, idx) => {\n      const actIndex = actualWords.findIndex(aw => aw.includes(word) || word.includes(aw));\n      return actIndex >= idx;\n    });\n    return inOrder ? 1 : 2;\n  }\n  \n  // Count matching words\n  const matchingWords = requestedWords.filter(reqWord =>\n    actualWords.some(actWord => actWord.includes(reqWord) || reqWord.includes(actWord))\n  ).length;\n  \n  // Score based on percentage of matching words\n  const matchPercentage = matchingWords / requestedWords.length;\n  \n  if (matchPercentage >= 0.5) {\n    return 10 - (matchPercentage * 10); // Score between 0-5\n  }\n  \n  // Levenshtein as fallback for typos\n  return 50 + levenshtein(requested, actual);\n}\n\n// Levenshtein distance function for fuzzy matching\nfunction levenshtein(a, b) {\n  const matrix = Array.from({length: b.length + 1}, (_, i) => [i]);\n  matrix[0] = Array.from({length: a.length + 1}, (_, j) => j);\n  for (let i = 1; i <= b.length; i++) {\n    for (let j = 1; j <= a.length; j++) {\n      if (b[i - 1] === a[j - 1]) matrix[i][j] = matrix[i-1][j-1];\n      else matrix[i][j] = Math.min(\n        matrix[i-1][j] + 1,\n        matrix[i][j-1] + 1,\n        matrix[i-1][j-1] + 1\n      );\n    }\n  }\n  return matrix[b.length][a.length];\n}\n\n// Find closest product match\nlet bestMatch = null;\nlet lowestScore = Infinity;\n\nallProducts.forEach(p => {\n  const productName = normalizeText(p.product || '');\n  const score = calculateMatchScore(requestedProduct, productName);\n  \n  console.log(`Comparing \"${requestedProduct}\" with \"${productName}\" - Score: ${score}`);\n  \n  if (score < lowestScore) {\n    lowestScore = score;\n    bestMatch = p;\n  }\n});\n\n// Accept matches with reasonable scores\n// Score 0-10 = good match (exact or partial word match)\n// Score > 10 = weak match, reject\nif (lowestScore > 10) {\n  bestMatch = null;\n}\n\nreturn [\n  {\n    json: {\n      chatid: $input.first().json.chat_id,\n      productName: requestedProduct,\n      matchedProduct: bestMatch ? bestMatch.product : null,\n      sizeChart: bestMatch && bestMatch['Size Chart'] ? bestMatch['Size Chart'] : 'Size information not available',\n      matchScore: lowestScore,\n      debugInfo: `Requested: \"${requestedProduct}\" | Matched: \"${bestMatch ? bestMatch.product : 'none'}\" | Score: ${lowestScore}`\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        1808
+      ],
+      "id": "bdb78d73-31ad-449e-b33f-7176f8bfb37e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Product Catalog (Google Sheet)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 925605305,
+          "mode": "list",
+          "cachedResultName": "Resport",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=925605305"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Detected Intent": "={{ $json.output }}",
+            "Customer Message": "={{ $('Extract chat id').item.json.prompt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Message",
+              "displayName": "Customer Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Detected Intent",
+              "displayName": "Detected Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2384,
+        1360
+      ],
+      "id": "73941db1-d396-421d-ae48-4a999ca7982d",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "The user wants to talk to the team",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1088,
+        1328
+      ],
+      "id": "579c6cd3-d33b-4507-ad22-683d27826cde",
+      "name": "Send a text message",
+      "webhookId": "2e5a68b3-6a52-49e2-a244-299cad43c4e4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get user text\nconst text = $input.first().json.body.Message|| \"\";\n\n// Normalize\nconst t = text.trim();\n\n// 1) Detect Arabic script (easy & accurate)\nconst hasArabic = /[\\u0600-\\u06FF]/.test(t);\n\n// 2) Detect Arabizi: contains numbers + letters in a typical Arabizi pattern\nconst hasArabizi = /[a-zA-Z]+[2357]/i.test(t) || /[2357][a-zA-Z]/i.test(t);\n\n// Output language\nlet language = \"english\";\n\nif (hasArabic) {\n  language = \"arabic\";\n} else if (hasArabizi) {\n  language = \"english\"; // You decided Arabizi should be treated as English\n}\n\nreturn [\n  {\n    json: {\n      detected_language: language\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3104,
+        1136
+      ],
+      "id": "362aa2e1-a242-491e-92a1-da039f7cdb6c",
+      "name": "Detect Language"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "your-webhook-path",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3264,
+        1136
+      ],
+      "id": "a8e1d569-1883-4e24-baa9-6f29487f795c",
+      "name": "Webhook",
+      "webhookId": "your-webhook-path"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.chat_id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"type\": \"instagram\",\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": {{ JSON.stringify( $json.extracted_message ) }},\n          \"tag\": \"POST_PURCHASE_UPDATE\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -560,
+        1632
+      ],
+      "id": "c105022e-904b-4825-af6c-f5287508ed36",
+      "name": "Send to ManyChat1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node to extract message\nconst raw = ($input.item.json.output || '').toString().trim();\n\n// Remove json prefix, backticks, and clean up\nlet cleaned = raw\n  .replace(/^```json\\s*/i, '')   // Remove ```json\n  .replace(/^json\\s*/i, '')       // Remove json prefix\n  .replace(/```$/,'')             // Remove closing ```\n  .trim();\n\n// Replace escaped newlines with actual newlines\ncleaned = cleaned.replace(/\\\\n/g, '\\n');\n\ntry {\n  const obj = JSON.parse(cleaned);\n  return {\n    json: {\n      extracted_message: obj.message || raw,\n      hiring_detected: obj.hiring_detected || 'No',\n      chat_id: $input.item.json.chat_id || $('Extract chat id').item.json.chat_id\n    }\n  };\n} catch (e) {\n  // If parsing fails, return the raw text\n  return {\n    json: {\n      extracted_message: raw,\n      hiring_detected: 'No',\n      chat_id: $input.item.json.chat_id || $('Extract chat id').item.json.chat_id\n    }\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -768,
+        1632
+      ],
+      "id": "c6e8ec90-bd15-4abd-a944-404fdbb85f0c",
+      "name": "ExtractMSG"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.chat_id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"type\": \"instagram\",\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": {{ JSON.stringify( $json.extracted_message ) }},\n          \"tag\": \"POST_PURCHASE_UPDATE\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -560,
+        1472
+      ],
+      "id": "a9da3b78-7a60-448d-b712-c1b448b542dc",
+      "name": "Send to ManyChat"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node to extract message\nconst raw = ($input.item.json.output || '').toString().trim();\n\n// Remove json prefix, backticks, and clean up\nlet cleaned = raw\n  .replace(/^```json\\s*/i, '')   // Remove ```json\n  .replace(/^json\\s*/i, '')       // Remove json prefix\n  .replace(/```$/,'')             // Remove closing ```\n  .trim();\n\n// Replace escaped newlines with actual newlines\ncleaned = cleaned.replace(/\\\\n/g, '\\n');\n\ntry {\n  const obj = JSON.parse(cleaned);\n  return {\n    json: {\n      extracted_message: obj.message || raw,\n      hiring_detected: obj.hiring_detected || 'No',\n      chat_id: $input.item.json.chat_id || $('Extract chat id').item.json.chat_id\n    }\n  };\n} catch (e) {\n  // If parsing fails, return the raw text\n  return {\n    json: {\n      extracted_message: raw,\n      hiring_detected: 'No',\n      chat_id: $input.item.json.chat_id || $('Extract chat id').item.json.chat_id\n    }\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -768,
+        1472
+      ],
+      "id": "d13597da-6f9b-43fd-a7c4-08186a4c4c22",
+      "name": "ExtractMSG1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.chatid }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"type\": \"instagram\",\n      \"messages\": [\n        {\n          \"type\": \"image\",\n          \"url\": \"{{ $('Convert').item.json.directImageUrl }}\",\n          \"tag\": \"POST_PURCHASE_UPDATE\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -768,
+        1808
+      ],
+      "id": "8c8008b1-ad9b-46a5-a5e2-c9bd1c91d790",
+      "name": "Send to ManyChat2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert Google Drive sharing URL to direct image URL\nconst sizeChartUrl = $input.item.json.sizeChart;\n\nfunction convertGoogleDriveUrl(url) {\n  if (!url || url === 'Size information not available') {\n    return null;\n  }\n  \n  // Handle different Google Drive URL formats\n  let fileId = null;\n  \n  // Format 1: https://drive.google.com/file/d/FILE_ID/view\n  if (url.includes('drive.google.com/file/d/')) {\n    fileId = url.split('/d/')[1].split('/')[0];\n  }\n  // Format 2: https://drive.google.com/open?id=FILE_ID\n  else if (url.includes('drive.google.com/open?id=')) {\n    fileId = url.split('id=')[1].split('&')[0];\n  }\n  // Format 3: https://drive.google.com/uc?id=FILE_ID\n  else if (url.includes('drive.google.com/uc?id=')) {\n    fileId = url.split('id=')[1].split('&')[0];\n  }\n  \n  if (!fileId) {\n    console.log('Could not extract file ID from URL:', url);\n    return null;\n  }\n  \n  // Return direct download/view URL\n  return `https://drive.google.com/uc?export=view&id=${fileId}`;\n}\n\nconst directImageUrl = convertGoogleDriveUrl(sizeChartUrl);\n\nreturn {\n  json: {\n    ...($input.item.json),\n    directImageUrl: directImageUrl,\n    originalUrl: sizeChartUrl,\n    chatid: $input.first().json.chatid\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -944,
+        1808
+      ],
+      "id": "a64805e0-efd9-44cf-8a7b-5d11c6039b2e",
+      "name": "Convert"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $('Combine').item.json.chatid }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"type\": \"instagram\",\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": {{ JSON.stringify( $json.message ) }},\n          \"tag\": \"POST_PURCHASE_UPDATE\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -768,
+        1152
+      ],
+      "id": "399c956f-8afe-43b0-ad42-5017f8fcf0b2",
+      "name": "Send to ManyChat3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $('Extract chat id').item.json.chat_id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"type\": \"instagram\",\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": {{ JSON.stringify( $json.message ) }},\n          \"tag\": \"POST_PURCHASE_UPDATE\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -768,
+        944
+      ],
+      "id": "6bd54523-7240-4506-a190-cef7b727dcbe",
+      "name": "Send to ManyChat4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract message from JSON or pass through if already a string\n// For n8n Code node\n\nconst input = $input.first().json.output;\n\nlet message;\n\ntry {\n  // Check if input is already a string\n  if (typeof input === 'string') {\n    // Try to parse it as JSON\n    try {\n      const parsed = JSON.parse(input);\n      // If it has a message field, extract it\n      message = parsed.message || input;\n    } catch {\n      // Not valid JSON, use as is\n      message = input;\n    }\n  } \n  // If input is an object\n  else if (typeof input === 'object' && input !== null) {\n    // Check if it has a message property\n    if (input.message) {\n      message = input.message;\n    } else {\n      // If no message field, stringify the whole object\n      message = JSON.stringify(input);\n    }\n  } \n  // For other types, convert to string\n  else {\n    message = String(input);\n  }\n} catch (error) {\n  // Fallback: use input as is\n  message = input;\n}\n\nreturn { \n  json: { \n    message: message \n  } \n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1008,
+        1152
+      ],
+      "id": "887d6f5d-ea89-4716-ac3e-04daa2e58e8b",
+      "name": "Filter JSon"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract message from JSON or pass through if already a string\n// For n8n Code node\n\nconst input = $input.first().json.output;\n\nlet message;\n\ntry {\n  // Check if input is already a string\n  if (typeof input === 'string') {\n    // Try to parse it as JSON\n    try {\n      const parsed = JSON.parse(input);\n      // If it has a message field, extract it\n      message = parsed.message || input;\n    } catch {\n      // Not valid JSON, use as is\n      message = input;\n    }\n  } \n  // If input is an object\n  else if (typeof input === 'object' && input !== null) {\n    // Check if it has a message property\n    if (input.message) {\n      message = input.message;\n    } else {\n      // If no message field, stringify the whole object\n      message = JSON.stringify(input);\n    }\n  } \n  // For other types, convert to string\n  else {\n    message = String(input);\n  }\n} catch (error) {\n  // Fallback: use input as is\n  message = input;\n}\n\nreturn { \n  json: { \n    message: message \n  } \n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        944
+      ],
+      "id": "eb8408f4-5a1b-44d3-a936-774eaa197e26",
+      "name": "Filter JSon1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $('Extract chat id').item.json.chat_id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"type\": \"instagram\",\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"Thank You , someone from out team will contact you shortly!\",\n          \"tag\": \"POST_PURCHASE_UPDATE\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -768,
+        1328
+      ],
+      "id": "c2a0179b-e91a-4252-845a-d479976e37b8",
+      "name": "Send to ManyChat5"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2688,
+        1328
+      ],
+      "id": "e9b09b83-b082-4485-a186-792b810cc172",
+      "name": "Google Gemini Chat Model4"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        1632
+      ],
+      "id": "64142070-b88d-4bf4-b095-eacfbd7e78a5",
+      "name": "Google Gemini Chat Model5"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract chat id').item.json.chat_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1328,
+        1632
+      ],
+      "id": "01e85fa2-1c75-4f6f-aaef-b6d7c665aa9d",
+      "name": "Simple Memory4"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Product Catalog (Google Sheet)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1776,
+        1152
+      ],
+      "id": "1d0aa581-4248-437d-a6be-d7a9caf17ffd",
+      "name": "Get row(s) in sheet2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Product Catalog (Google Sheet)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1472,
+        1808
+      ],
+      "id": "15d35be0-0637-40fa-a478-3d95421d68ce",
+      "name": "Get row(s) in sheet3",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1d595816-eec6-4d10-9000-a37a031fc20c",
+              "leftValue": "={{\n  (() => {\n    const raw = ($json.output || '').toString().trim();\n\n    // Quick check: if no '{' at all, there is no JSON \u2192 no hiring flag\n    if (!raw.includes('{')) return 'no';\n\n    // Clean possible prefixes like \"```json\" or \"json\"\n    let jsonPart = raw;\n    jsonPart = jsonPart.replace(/^```json\\s*/i, '').replace(/```$/,'');\n    jsonPart = jsonPart.replace(/^json\\s*/i, '').trim();\n\n    try {\n      const obj = JSON.parse(jsonPart);\n      return (obj.hiring_detected || '').toString().toLowerCase();\n    } catch (e) {\n      // If parsing fails, default to \"no\"\n      return 'no';\n    }\n  })()\n}}\n",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1072,
+        1568
+      ],
+      "id": "626b4772-aacc-4bb6-8eef-cf79c0420567",
+      "name": "If1"
+    }
+  ],
+  "connections": {
+    "Extract chat id": {
+      "main": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Order Requests",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "General_Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Size Chart",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "General_Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "General_Info": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Order Requests",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Order Requests",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order Requests": {
+      "main": [
+        [
+          {
+            "node": "Filter JSon1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Classifier": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Product info",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Product info",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product info": {
+      "main": [
+        [
+          {
+            "node": "Filter JSon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine": {
+      "main": [
+        [
+          {
+            "node": "Product info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Size Chart": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Convert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Send to ManyChat5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Language": {
+      "main": [
+        [
+          {
+            "node": "Extract chat id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Detect Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ExtractMSG": {
+      "main": [
+        [
+          {
+            "node": "Send to ManyChat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ExtractMSG1": {
+      "main": [
+        [
+          {
+            "node": "Send to ManyChat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert": {
+      "main": [
+        [
+          {
+            "node": "Send to ManyChat2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter JSon": {
+      "main": [
+        [
+          {
+            "node": "Send to ManyChat3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter JSon1": {
+      "main": [
+        [
+          {
+            "node": "Send to ManyChat4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "General_Info",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "General_Info",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Combine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Combine1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "ExtractMSG1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ExtractMSG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "name": "Demo"
+    }
+  ]
+}
