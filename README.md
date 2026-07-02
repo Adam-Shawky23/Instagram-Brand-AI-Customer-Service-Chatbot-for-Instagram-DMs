@@ -1,5 +1,7 @@
 # Instagram Brand — AI Customer Service Chatbot for Instagram DMs
 
+![Instagram Brand — AI Customer Service Chatbot](assets/banner-github.png)
+
 An AI-powered customer service automation built for **Instagram Brand**, a DTC fashion/apparel brand, to handle Instagram DM conversations automatically — product questions, order requests, sizing, and general FAQs — with a smart handoff to a real human when the bot shouldn't (or can't) handle the conversation.
 
 > This repo contains a **sanitized version** of a production workflow built for a real client. All credentials, account IDs, spreadsheet IDs, brand-identifying details, and customer data have been removed or replaced with placeholders. See [Setup](#setup) to run your own copy.
